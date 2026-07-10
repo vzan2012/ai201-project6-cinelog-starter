@@ -12,13 +12,21 @@
 `verb_to_noun` convention (`add_to_collection`, `remove_from_collection`).
 **How I verified:** Searched the project for all references to
 `save_to_watchlist` (project-wide search / find-all-references) and confirmed
-only two occurrences existed — the definition and one call site — both updated.
+only two occurrences existed - the definition and one call site — both updated.
 Ran `pytest tests/ -v` afterward; all 4 existing tests still passed.
 
-## Comment 2 — Deduplication
+## Comment 2 - Deduplication
 
-**What I did:**
-**How I verified:**
+**What I did:** Added `AlreadyInWatchlistError` to `services/watchlist_service.py`
+and a dedup check in `add_to_watchlist()` - queries for an existing
+`WatchlistEntry` with the same `user_id`/`film_id` before creating a new one,
+raising `AlreadyInWatchlistError` if found. Mirrors the pattern in
+`add_to_collection()`. Also updated `routes/watchlist/watchlist.py`'s `add_film`
+route to catch both `FilmNotFoundError` (404) and `AlreadyInWatchlistError`
+(409), matching `routes/collection.py`'s error handling - previously neither
+exception was caught there, so both cases would have 500'd.
+**How I verified:** Ran `pytest tests/ -v` - all 4 existing tests still pass.
+(No automated test for the duplicate case yet - will add one in Comment 3/test coverage work.)
 
 ## Comment 3 — Missing test
 
