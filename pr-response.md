@@ -28,10 +28,20 @@ exception was caught there, so both cases would have 500'd.
 **How I verified:** Ran `pytest tests/ -v` - all 4 existing tests still pass.
 (No automated test for the duplicate case yet - will add one in Comment 3/test coverage work.)
 
-## Comment 3 — Missing test
+## Comment 3 - Missing test
 
-**What I did:**
-**How I verified:**
+**What I did:** Created `tests/test_watchlist.py`, mirroring the fixture
+structure of `test_collection.py` (`app`, `sample_user`, `sample_film`).
+Added three tests: `test_add_to_watchlist_creates_entry` (happy path),
+`test_add_to_watchlist_duplicate_raises` (validates the Comment 2 dedup fix),
+and `test_add_to_watchlist_nonexistent_film_raises` (the test the reviewer
+asked for). Went beyond the literal ask since CONTRIBUTING.md requires 3
+tests minimum for any new service function, and `add_to_watchlist()` had zero
+coverage before this. One adaptation from the `test_collection.py` pattern:
+the fake nonexistent film_id is an integer (`999999`), not a UUID string,
+since `Film.id` is still `Integer` on this branch (pre-rebase).
+**How I verified:** Ran `pytest tests/test_watchlist.py -v` - all 3 pass.
+Ran the full suite `pytest tests/ -v` - 7 passed, no regressions.
 
 ## Comment 4 — Default visibility
 
