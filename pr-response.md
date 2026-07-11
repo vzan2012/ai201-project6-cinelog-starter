@@ -43,13 +43,29 @@ since `Film.id` is still `Integer` on this branch (pre-rebase).
 **How I verified:** Ran `pytest tests/test_watchlist.py -v` - all 3 pass.
 Ran the full suite `pytest tests/ -v` - 7 passed, no regressions.
 
-## Comment 4 — Default visibility
+## Comment 4 - Default visibility
 
-**My position:**
-**Reasoning:**
-**Tradeoff acknowledged:**
+**My position:** Watchlist entries should default to private (public=False),
+not public=True.
+**Reasoning:** A watchlist is a personal "want to watch" list - it reflects
+someone's private taste/interests before they've actually watched, unlike a collection (already-watched films). Defaulting to
+private respects that it's personal, and lets a user actively choose to
+share it (e.g. with friends) rather than assuming everyone wants their
+watchlist exposed.
+**Tradeoff acknowledged:** CineLog is described as a community app, and
+public watchlists could support discovery/recommendations between users.
+But I don't think private-by-default actually costs the app that community
+value - sharing/comments/recommendations can still happen, just as an
+explicit choice (via the new `public` param) instead of an invisible
+default. That's arguably a better fit for the reviewer's actual concern:
+"I want to make sure we're being intentional, not just inheriting a
+default" - an explicit opt-in is the most intentional version of this.
+I implemented this by changing `WatchlistEntry.public`'s default to `False`
+and adding an explicit `public` parameter to `add_to_watchlist()` so
+callers/routes decide visibility on purpose rather than inheriting a
+silent default.
 
-## Comment 5 — Sort order
+## Comment 5 - Sort order
 
 **My position:**
 **Reasoning:**
