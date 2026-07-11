@@ -85,11 +85,36 @@ parameter would be the better long-term answer. I didn't build that now
 (scoped out for time), but wanted to document it as the fuller answer I'd
 pursue with more time.
 
-## Comment 6 — Rebase
+## Comment 6 - Rebase
 
-**What conflicted:**
-**How I resolved it:**
-**How I verified no conflict remains:**
+**What conflicted:** Ran `git fetch origin` then `git rebase origin/main`.
+Most of the 14 commits on `feature/watchlist` applied cleanly. Two real
+conflicts came up:
+
+1. `.gitignore` - both branches added one independently (`f2934ab` vs. main's
+   earlier gitignore commit). Resolved by keeping both sets of entries
+   (main's list plus my `claude.local.md` line).
+2. `models.py` - applying the commit that changed `WatchlistEntry.public`'s
+   default hit a conflict, because `CollectionEntry.film_id` and
+   `WatchlistEntry.film_id` were still typed as `Integer` in my branch's
+   history, while `main` had already migrated `Film.id`/`CollectionEntry.film_id`
+   to UUID strings. Resolved by keeping `main`'s UUID-based `CollectionEntry`
+   and updating `WatchlistEntry.film_id` to `db.String(36)` to match.
+   **How I resolved it:** After the rebase completed with no more conflicts
+   reported, I found that a later commit had silently reverted
+   `WatchlistEntry.film_id` back to `Integer` (git applied that patch without
+   flagging a conflict, even though it undid my manual fix — a known rebase
+   gotcha when a later commit's context-matching is fuzzy). Caught this by
+   re-reading `models.py` after the rebase finished, rather than trusting
+   "no conflicts" to mean "fully correct." Fixed it again, plus updated two
+   stale docstrings (`services/watchlist_service.py`, `routes/watchlist/watchlist.py`)
+   still describing `film_id` as an integer, and changed the fake nonexistent
+   `film_id` in `tests/test_watchlist.py` from an integer (`999999`) to a fake
+   UUID string, matching `test_collection.py`'s convention.
+   **How I verified no conflict remains:** Ran `git log --oneline --graph` to
+   confirm a single straight line with no merge commits after `main`'s tip.
+   Ran `pytest tests/ -v` - all 7 tests pass, including the updated
+   nonexistent-film test with a real UUID-shaped fake ID.
 
 ## PR Description
 
