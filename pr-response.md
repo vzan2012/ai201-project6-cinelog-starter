@@ -45,31 +45,45 @@ Ran the full suite `pytest tests/ -v` - 7 passed, no regressions.
 
 ## Comment 4 - Default visibility
 
-**My position:** Watchlist entries should default to private (public=False),
-not public=True.
-**Reasoning:** A watchlist is a personal "want to watch" list - it reflects
-someone's private taste/interests before they've actually watched, unlike a collection (already-watched films). Defaulting to
-private respects that it's personal, and lets a user actively choose to
-share it (e.g. with friends) rather than assuming everyone wants their
-watchlist exposed.
-**Tradeoff acknowledged:** CineLog is described as a community app, and
-public watchlists could support discovery/recommendations between users.
-But I don't think private-by-default actually costs the app that community
-value - sharing/comments/recommendations can still happen, just as an
-explicit choice (via the new `public` param) instead of an invisible
-default. That's arguably a better fit for the reviewer's actual concern:
-"I want to make sure we're being intentional, not just inheriting a
-default" - an explicit opt-in is the most intentional version of this.
-I implemented this by changing `WatchlistEntry.public`'s default to `False`
-and adding an explicit `public` parameter to `add_to_watchlist()` so
-callers/routes decide visibility on purpose rather than inheriting a
-silent default.
+**My position:** Watchlist entries stay public by default, but users can
+switch individual entries to private.
+**Reasoning:** I first considered private-by-default, since a watchlist is
+personal - just things someone wants to watch, not something they've
+committed to. But CineLog is a community app, and I realized most people
+never bother changing a default setting. If watchlists started private,
+almost nobody would ever turn on sharing, even if they wouldn't mind
+sharing it - so the community/recommendation angle of the app would barely
+get used in practice. That's a bigger loss than I first gave it credit for.
+**Tradeoff acknowledged:** Public-by-default does mean some users' movies
+they merely _want_ to watch are visible to others unless they actively
+choose to make an entry private. That's a real privacy cost for anyone
+who doesn't realize/bother to opt out. I think that cost is acceptable
+here because the entries are still opt-out (not forced permanently
+public), and the community value — people recommending movies to each
+other, seeing what friends want to watch — matters enough for this app
+to accept that tradeoff. Implemented via an explicit `public` parameter
+on `add_to_watchlist()` (default `True`), so it's a conscious default
+rather than an invisible one, and callers can pass `public=False` per
+entry if they want privacy.
 
 ## Comment 5 - Sort order
 
-**My position:**
-**Reasoning:**
-**Engagement with reviewer's point:**
+**My position:** Default to date-added (newest first), matching the
+reviewer's preference - but I'd also want a `?sort=` option later so users
+can switch to alphabetical if they want, instead of only ever getting one order.
+**Reasoning:** Most people opening their watchlist want to see what they
+just added, not scroll to find it alphabetically - this also matches how
+`get_collection()` already sorts (`date_added.desc()`), so it's consistent
+across the app.
+**Engagement with reviewer's point:** I agree with the reviewer's reasoning
+for the default. I considered keeping alphabetical, but couldn't find a
+strong reason it would serve most users better - it mainly helps if you're
+searching for a specific title, which is less common than "what did I just
+add." Where I went beyond just agreeing: I think locking in one sort order
+either way is a bit limiting, so a `?sort=name`/`?sort=date_added` query
+parameter would be the better long-term answer. I didn't build that now
+(scoped out for time), but wanted to document it as the fuller answer I'd
+pursue with more time.
 
 ## Comment 6 — Rebase
 
