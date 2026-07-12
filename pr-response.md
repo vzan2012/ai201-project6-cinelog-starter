@@ -8,7 +8,21 @@ Final `git log --oneline` on `feature/watchlist`, rebased onto `main` and cleane
 
 ## AI Usage
 
-<!-- Fill in at the end — how you used AI tools during this project -->
+I used Claude for a few things while working on this:
+
+- Before touching any of the review comments, I had it walk me through
+  models.py, collection_service.py, and test_collection.py so I understood
+  the existing patterns first.
+- For Comment 4, I originally thought watchlists should be private by
+  default. I asked what a reviewer might push back on, and it pointed out
+  that people rarely change default settings, so private-by-default would
+  probably kill the sharing/community feature in practice. That's actually
+  what changed my mind to public-by-default with an opt-out.
+- I'm new to git, so I had it explain what commands like rebase, fixup,
+  reword, and --force-with-lease actually do before I ran them myself.
+
+I didn't have it write the Comment 5 argument or any of the actual service
+code - just used it to check my reasoning and understand git.
 
 ## Comment 1 - Rename
 
