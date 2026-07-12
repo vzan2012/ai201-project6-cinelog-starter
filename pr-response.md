@@ -124,4 +124,42 @@ conflicts came up:
 
 ## PR Description
 
-<!-- Written at the end — feature overview, design decisions, manual testing steps -->
+### What this does
+
+Adds a personal watchlist feature to CineLog - users can add films they want to watch to their watchlist, view their full watchlist, and get proper error handling for duplicate entries and nonexistent films.
+
+### Design decisions
+
+**Default visibility:** Watchlist entries default to `public=True`. I
+considered defaulting to private (since a watchlist is more personal/
+aspirational than a collection of watched films), but decided against it —
+most users never change default settings, so private-by-default would
+likely mean CineLog's community/recommendation features around watchlists
+go largely unused. Public-by-default keeps that value, while an explicit
+`public` parameter on `add_to_watchlist()` lets users opt individual
+entries into private if they want (full reasoning above, Comment 4).
+
+**Sort order:** Watchlists are sorted by date added, newest first (matching
+`get_collection()`'s existing sort), rather than alphabetically. Most users
+want to see what they just added, not scroll to find something. A
+`?sort=` query parameter (to let users choose alphabetical) would be a
+good future addition, but wasn't built in this PR (full reasoning above,
+Comment 5).
+
+### How to test manually
+
+1. Start the server: `python app.py`
+2. Create a user and a film (or use existing seed data / your own test IDs).
+3. Add a film to the watchlist:
+   ```bash
+   curl -X POST http://127.0.0.1:5000/watchlist/<user_id>/add \
+     -H "Content-Type: application/json" \
+     -d '{"film_id": "<film_uuid>"}'
+   ```
+   Should return `201` with the new entry (defaults to `public: true`).
+4. Try adding the same film again — should return `409` (`AlreadyInWatchlistError`).
+5. Try adding a nonexistent `film_id` — should return `404` (`FilmNotFoundError`).
+6. View the watchlist: `curl http://127.0.0.1:5000/watchlist/<user_id>` —
+   should list films sorted newest-added first.
+7. Optionally add a film with `"public": false` in the body to confirm
+   the explicit visibility override works.
