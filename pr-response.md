@@ -1,5 +1,11 @@
 # PR Response Doc - CineLog Watchlist Feature
 
+## Commit History
+
+Final `git log --oneline` on `feature/watchlist`, rebased onto `main` and cleaned up via interactive rebase — 10 commits, all conventional format, no merge commits:
+
+![git log --oneline showing clean commit history](screenshots/git-log.png)
+
 ## AI Usage
 
 <!-- Fill in at the end — how you used AI tools during this project -->
